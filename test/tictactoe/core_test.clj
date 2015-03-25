@@ -65,3 +65,10 @@
          10 [:x :o :x :o :o :x :o :x :x]
          -10 [:o :x :x :x :o :o :x :o :o]
          0 [:x :o :x :e :e :e :x :o :x])))
+
+(deftest get-empty-positions
+  (testing "Get empty board positions"
+    (are [x y] (= x (empty-positions y))
+         [3 4 5] [:x :o :x :empty :empty :empty :x :o :x]
+         [0 1 2 3 4 5 6 7 8] *board*
+         [] [:o :x :o :o :x :x :x :x :o])))

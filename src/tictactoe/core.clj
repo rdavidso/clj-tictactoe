@@ -49,6 +49,7 @@
   (some #{true} (map (fn [pattern] (check-board board pattern player)) win-patterns)))
 
 (defn opponent
+  "Return the current player's opponent"
   [player]
   (if (= player :x) :o :x))
 
@@ -61,3 +62,8 @@
       win-player 10
       win-opponent -10
       :else 0)))
+
+(defn empty-positions
+  "Return a list of empty positions"
+  [board]
+  (keep-indexed #(if (= :empty %2) %1) board))
