@@ -36,7 +36,7 @@
    [1 4 7]
    [2 5 8]
    [0 4 8]
-   [3 4 6]])
+   [2 4 6]])
 
 (defn check-board
   "Does this board win for this pattern for this player"
@@ -55,15 +55,48 @@
 
 (defn score
   "Score a board for a winning position"
-  [board player]
+  [board player depth]
   (let [win-player (win? board player)
         win-opponent (win? board (opponent player))]
     (cond
-      win-player 10
-      win-opponent -10
+      win-player (- 10 depth)
+      win-opponent (+ -10 depth)
       :else 0)))
 
 (defn empty-positions
   "Return a list of empty positions"
   [board]
   (keep-indexed #(if (= :empty %2) %1) board))
+
+(defn pos-max
+  ([x] x)
+  ([x y] (if (> (get x 0) (get y 0)) x y))
+  ([x y & more] (apply pos-max (pos-max x y) more)))
+
+(defn pos-min
+  ([x] x)
+  ([x y] (if (< (get x 0) (get y 0)) x y))
+  ([x y & more] (apply pos-min (pos-min x y) more)))
+
+(defn minimax
+  [board player depth]
+  (let [children (empty-positions board)
+        scr (score board :x depth)
+        max-or-min (if (= player :x) pos-max pos-min)
+        over? (or (not (= scr 0)) (= 0 (count children)))]
+    (cond
+      over? [scr -1]
+      :else (apply max-or-min (map (fn [index] (assoc (minimax (move board player index) (opponent player) (inc depth)) 1 index)) children)))))
+
+(defn minimax2
+  [board player depth]
+  (let [next-moves (empty-positions board)
+        scr (score board :x depth)]
+    (if (or (not (= scr 0)) (empty? next-moves))
+      [scr -1]
+      (let [next-boards (map (fn [mv] [(move board player mv) mv]) next-moves)]
+        (if (= player :x)
+          (let [maxes (map (fn [next-board] (assoc (minimax2 (get next-board 0) (opponent player) (inc depth)) 1 (get next-board 1))) next-boards)]
+            (apply pos-max maxes))
+          (let [mins (map (fn [next-board] (assoc (minimax2 (get next-board 0) (opponent player) (inc depth)) 1 (get next-board 1))) next-boards)]
+            (apply pos-min mins)))))))

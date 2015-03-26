@@ -61,10 +61,10 @@
 
 (deftest score-board
   (testing "Score these boards"
-    (are [x y] (= x (score y :x))
-         10 [:x :o :x :o :o :x :o :x :x]
-         -10 [:o :x :x :x :o :o :x :o :o]
-         0 [:x :o :x :e :e :e :x :o :x])))
+    (are [x y z] (= x (score y :x z))
+         10 [:x :o :x :o :o :x :o :x :x] 0
+         -10 [:o :x :x :x :o :o :x :o :o] 0
+         0 [:x :o :x :e :e :e :x :o :x] 0)))
 
 (deftest get-empty-positions
   (testing "Get empty board positions"
