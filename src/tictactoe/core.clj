@@ -1,11 +1,6 @@
 (ns tictactoe.core
   (:gen-class))
 
-(defn -main
-  "I don't do a whole lot ... yet."
-  [& args]
-  (println "Hello, World!"))
-
 (defn make-board
   "Make a new empty board"
   []
@@ -68,6 +63,14 @@
   [board]
   (keep-indexed #(if (= :empty %2) %1) board))
 
+(defn random-move
+  "Makes a random move from available empty board positions"
+  [board]
+  (let [moves (empty-positions board)
+        cnt (count moves)
+        position (rand-int cnt)]
+    (move board :o (nth moves position))))
+
 (defn pos-max
   ([x] x)
   ([x y] (if (> (get x 0) (get y 0)) x y))
@@ -100,3 +103,27 @@
             (apply pos-max maxes))
           (let [mins (map (fn [next-board] (assoc (minimax2 (get next-board 0) (opponent player) (inc depth)) 1 (get next-board 1))) next-boards)]
             (apply pos-min mins)))))))
+
+(defn next-move
+  "Use minimax to figure out the next best move and make it"
+  [board]
+  (let [mv (minimax board :x 0)]
+    (move board :x (get mv 1))))
+
+(defn -main
+  "This is really slow, and the opponent always goes first"
+  [& args]
+  (println "Bees")
+  (loop [board (make-board)
+         turn 0
+         win 0
+         draw 0]
+    (println [turn win draw])
+    (let [scr (score board :x turn)]
+      (cond
+        (> (+ win draw) 100) [win draw]
+        (< scr 0) board
+        (> scr 0) (recur (make-board) 0 (inc win) draw)
+        (= turn 9) (recur (make-board) 0 win (inc draw))
+        (even? turn) (recur (random-move board) (inc turn) win draw)
+        (odd? turn) (recur (next-move board) (inc turn) win draw)))))

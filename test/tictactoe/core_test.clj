@@ -72,3 +72,15 @@
          [3 4 5] [:x :o :x :empty :empty :empty :x :o :x]
          [0 1 2 3 4 5 6 7 8] *board*
          [] [:o :x :o :o :x :x :x :x :o])))
+
+(deftest get-next-move
+  (testing "Get next move from AI"
+    (are [x y] (= x (minimax y :x 0))
+         [9 6] [:o :o :x :empty :x :empty :empty :empty :empty]
+         [0 3] [:o :o :x :empty :x :empty :o :empty :empty])))
+
+(deftest make-next-move
+  (testing "Make the move it should"
+    (are [x y] (= x (next-move y))
+         [:o :o :x :empty :x :empty :x :empty :empty] [:o :o :x :empty :x :empty :empty :empty :empty]
+         [:o :o :x :x :x :empty :o :empty :empty] [:o :o :x :empty :x :empty :o :empty :empty])))
