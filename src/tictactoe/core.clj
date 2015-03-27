@@ -82,6 +82,7 @@
   ([x y & more] (apply pos-min (pos-min x y) more)))
 
 (defn minimax
+  "Not the prettiest"
   [board player depth]
   (let [children (empty-positions board)
         scr (score board :x depth)
