@@ -84,3 +84,7 @@
     (are [x y] (= x (next-move y))
          [:o :o :x :empty :x :empty :x :empty :empty] [:o :o :x :empty :x :empty :empty :empty :empty]
          [:o :o :x :x :x :empty :o :empty :empty] [:o :o :x :empty :x :empty :o :empty :empty])))
+
+(deftest play-a-game
+  (testing "Play a random game vs AI"
+    (is (>= (play-random-game) 0))))

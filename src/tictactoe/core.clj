@@ -111,6 +111,18 @@
   (let [mv (minimax board :x 0)]
     (move board :x (get mv 1))))
 
+(defn play-random-game
+  "Play AI vs random moves"
+  []
+  (loop [board (make-board)
+         turn 0]
+    (let [scr (score board :x turn)]
+      (cond
+        (not (= score 0)) scr
+        (= turn 9) scr
+        (even? turn) (recur (random-move board) (inc turn))
+        (odd? turn) (recur (next-move board) (inc turn))))))
+
 (defn -main
   "This is really slow, and the opponent always goes first"
   [& args]
