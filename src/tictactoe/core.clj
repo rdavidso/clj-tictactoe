@@ -123,10 +123,8 @@
         (even? turn) (recur (random-move board) (inc turn))
         (odd? turn) (recur (next-move board) (inc turn))))))
 
-(defn -main
-  "This is really slow, and the opponent always goes first"
-  [& args]
-  (println "Bees")
+(defn play-n-games
+  [num-games]
   (loop [board (make-board)
          turn 0
          win 0
@@ -134,9 +132,51 @@
     (println [turn win draw])
     (let [scr (score board :x turn)]
       (cond
-        (> (+ win draw) 100) [win draw]
+        (>= (+ win draw) num-games) [win draw]
         (< scr 0) board
         (> scr 0) (recur (make-board) 0 (inc win) draw)
         (= turn 9) (recur (make-board) 0 win (inc draw))
         (even? turn) (recur (random-move board) (inc turn) win draw)
         (odd? turn) (recur (next-move board) (inc turn) win draw)))))
+
+(defn print-board
+  [board]
+  (loop [i 0]
+    (let [pos (get board i)]
+      (if (and (> i 0) (= (mod i 3) 0))
+        (println "\n-----------------"))
+      (print (if (= pos :empty) "  " pos) " | ")
+      (if (< i 9)
+        (recur (inc i))
+        (println)))))
+
+(defn play-game
+  [player-func]
+  (let [start (rand-int 2)
+        turn-max (+ start 9)]
+    (loop [board (make-board)
+           turn start]
+      (flush)
+      (print-board board)
+      (flush)
+      (let [scr (score board :x turn)]
+        (cond
+          (not (= scr 0)) scr
+          (= turn turn-max) scr
+          (even? turn) (recur (player-func board) (inc turn))
+          (odd? turn) (recur (next-move board) (inc turn)))))))
+
+(defn user-input
+  [board]
+  (let [input (read-line)
+        sp (.split input ",")
+        x (Integer/parseInt (nth sp 0))
+        y (Integer/parseInt (nth sp 1))]
+    (move board :o (translate x y))))
+
+(defn -main
+  "This is really slow, and the opponent always goes first"
+  [& args]
+  (if (nil? args)
+    (println (play-game user-input))
+    (play-n-games (Integer/parseInt (nth args 0)))))
