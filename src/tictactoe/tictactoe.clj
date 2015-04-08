@@ -11,7 +11,7 @@
   "Turn row,col into an inderow"
   [row col]
   (cond
-    (and (< row 3) (< col 3)) (+ col (* row 3))
+    (and (< row 3) (< col 3) (>= row 0) (>= col 0)) (+ col (* row 3))
     :else -1))
 
 (defn move
@@ -75,7 +75,7 @@
   ([x y & more] (apply pos-min (pos-min x y) more)))
 
 (defn minimax
-  "Not the prettiest"
+  "Find the best move given the current board"
   [board player depth scoring-player]
   (let [children (empty-positions board)
         scr (score board scoring-player depth)
@@ -143,9 +143,9 @@
   (println "Please enter your move in the form of row,col with 0,0 as upper left: ")
   (let [input (read-line)
         sp (.split input ",")
-        x (safe-parse-int (get sp 0))
-        y (safe-parse-int (get sp 1))
-        new-board (move board :o (coordinates-to-index x y))]
+        row (safe-parse-int (get sp 0))
+        col (safe-parse-int (get sp 1))
+        new-board (move board :o row col)]
     (if (= new-board board)
       (do
           (println "Invalid input, try again")
