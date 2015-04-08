@@ -7,6 +7,11 @@
   []
   [:empty :empty :empty :empty :empty :empty :empty :empty :empty])
 
+(defn empty-positions
+  "Return a list of empty positions"
+  [board]
+  (keep-indexed #(if (= :empty %2) %1) board))
+
 (defn coordinates-to-index
   "Turn row,col into an inderow"
   [row col]
@@ -49,21 +54,6 @@
       win-opponent (+ -10 depth)
       :else 0)))
 
-(defn empty-positions
-  "Return a list of empty positions"
-  [board]
-  (keep-indexed #(if (= :empty %2) %1) board))
-
-(defn random-move
-  "Makes a random move from available empty board positions"
-  ([board]
-   (random-move board :o))
-  ([board player]
-   (let [moves (empty-positions board)
-         cnt (count moves)
-         position (rand-int cnt)]
-     (move board player (nth moves position)))))
-
 (defn pos-max
   ([x] x)
   ([x y] (if (> (get x 0) (get y 0)) x y))
@@ -85,6 +75,16 @@
       over? [scr -1]
       :else (apply max-or-min (map (fn [index] (assoc (minimax (move board player index) (opponent player) (inc depth) scoring-player) 1 index)) children)))))
 
+(defn random-move
+  "Makes a random move from available empty board positions"
+  ([board]
+   (random-move board :o))
+  ([board player]
+   (let [moves (empty-positions board)
+         cnt (count moves)
+         position (rand-int cnt)]
+     (move board player (nth moves position)))))
+
 (defn ai-minimax-move
   "Use minimax to figure out the next best move and make it"
   ([board]
@@ -94,6 +94,27 @@
      (random-move board player)
      (let [mv (minimax board player 0 player)]
        (move board player (get mv 1))))))
+
+(defn safe-parse-int
+  [string]
+  (try
+    (Integer/parseInt string)
+    (catch Exception e -1)))
+
+(defn user-input
+  "Prompt player to put in a row,col coordinate for their move."
+  [board]
+  (println "Please enter your move in the form of row,col with 0,0 as upper left: ")
+  (let [input (read-line)
+        sp (.split input ",")
+        row (safe-parse-int (get sp 0))
+        col (safe-parse-int (get sp 1))
+        new-board (move board :o row col)]
+    (if (= new-board board)
+      (do
+          (println "Invalid input, try again")
+          (user-input board))
+      new-board)))
 
 (defn play-game
   "Play a game with a given second player function.  Can be random-move or user-input currently."
@@ -130,24 +151,3 @@
             [new-win new-draw new-lose] (update-totals scr win draw lose)]
         (print-score scr)
         (recur new-win new-draw new-lose)))))
-
-(defn safe-parse-int
-  [string]
-  (try
-    (Integer/parseInt string)
-    (catch Exception e -1)))
-
-(defn user-input
-  "Prompt player to put in a row,col coordinate for their move."
-  [board]
-  (println "Please enter your move in the form of row,col with 0,0 as upper left: ")
-  (let [input (read-line)
-        sp (.split input ",")
-        row (safe-parse-int (get sp 0))
-        col (safe-parse-int (get sp 1))
-        new-board (move board :o row col)]
-    (if (= new-board board)
-      (do
-          (println "Invalid input, try again")
-          (user-input board))
-      new-board)))
