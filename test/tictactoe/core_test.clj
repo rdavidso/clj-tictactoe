@@ -1,11 +1,13 @@
 (ns tictactoe.core-test
   (:require [clojure.test :refer :all]
-            [tictactoe.core :refer :all]))
+            [tictactoe.tictactoe :refer :all]
+            [tictactoe.print :refer [*can-print*]]))
 
 (def ^:dynamic *board* nil)
 
 (defn board-fixture [test]
-  (binding [*board* (make-board)]
+  (binding [*board* (empty-board)
+            *can-print* false]
     (test)))
 
 (use-fixtures :each board-fixture)
@@ -16,7 +18,7 @@
 
 (deftest translate-coords
   (testing "Translate from x,y to index"
-    (are [i x y] (= i (translate x y))
+    (are [i x y] (= i (coordinates-to-index x y))
          0 0 0
          1 0 1
          2 0 2
@@ -87,4 +89,4 @@
 
 (deftest play-a-game
   (testing "Play a random game vs AI"
-    (is (>= (play-random-game) 0))))
+    (is (>= (play-game random-move) 0))))
