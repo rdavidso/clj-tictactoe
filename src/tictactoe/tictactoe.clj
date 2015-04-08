@@ -110,25 +110,24 @@
           (odd? turn) (recur (next-move board) (inc turn)))))))
 
 (defn update-totals
-  [scr win draw]
+  [scr win draw lose]
   (cond
-    (= scr 0) [win (inc draw) 0]
-    (> scr 0) [(inc win) draw 0]
-    (< scr 0) [win draw 1]))
+    (= scr 0) [win (inc draw) lose]
+    (> scr 0) [(inc win) draw lose]
+    (< scr 0) [win draw (inc lose)]))
 
 (defn play-n-games
   "Play through n games and return an array of [win draw] counts"
   [num-games]
   (loop [win 0
-         draw 0]
-    (if (>= (+ win draw) num-games) 
-      [win draw]
+         draw 0
+         lose 0]
+    (if (>= (+ win draw lose) num-games) 
+      [win draw lose]
       (let [scr (play-game random-move)
-            [new-win new-draw lose] (update-totals scr win draw)]
+            [new-win new-draw new-lose] (update-totals scr win draw lose)]
         (print-score scr)
-        (if (= lose 0)
-          (recur new-win new-draw)
-          scr)))))
+        (recur new-win new-draw new-lose)))))
 
 (defn safe-parse-int
   [string]
@@ -137,7 +136,7 @@
     (catch Exception e -1)))
 
 (defn user-input
-  "Prompt player to put in a row,col coordinate for their move.  This doesn't check if it's an illegal move."
+  "Prompt player to put in a row,col coordinate for their move."
   [board]
   (println "Please enter your move in the form of row,col with 0,0 as upper left: ")
   (let [input (read-line)

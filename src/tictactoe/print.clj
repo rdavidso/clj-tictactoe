@@ -38,8 +38,8 @@
 
 (defn print-summary
   [totals]
-  (let [[win draw] totals]
-    (can-print "AI won" win "times and drew the game" draw "times.")))
+  (let [[win draw lose] totals]
+    (can-print "AI won" win "times, drew the game" draw "times, and lost" lose "times.")))
 
 (defn print-score
   "Print the final text at the end of a game."
