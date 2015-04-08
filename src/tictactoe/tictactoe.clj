@@ -8,10 +8,10 @@
   [:empty :empty :empty :empty :empty :empty :empty :empty :empty])
 
 (defn coordinates-to-index
-  "Turn x,y into an index"
-  [x y]
+  "Turn row,col into an inderow"
+  [row col]
   (cond
-    (and (< x 3) (< y 3)) (+ y (* x 3))
+    (and (< row 3) (< col 3)) (+ col (* row 3))
     :else -1))
 
 (defn move
@@ -21,8 +21,8 @@
       (cond
         (= space :empty) (assoc board index mark)
         :else board)))
-  ([board mark x y]
-    (move board mark (coordinates-to-index x y))))
+  ([board mark row col]
+    (move board mark (coordinates-to-index row col))))
 
 (defn board-pattern-win?
   "Does this board win for this pattern for this player"
@@ -76,22 +76,24 @@
 
 (defn minimax
   "Not the prettiest"
-  [board player depth]
+  [board player depth scoring-player]
   (let [children (empty-positions board)
-        scr (score board :x depth)
-        max-or-min (if (= player :x) pos-max pos-min)
+        scr (score board scoring-player depth)
+        max-or-min (if (= player scoring-player) pos-max pos-min)
         over? (or (not (= scr 0)) (= 0 (count children)))]
     (cond
       over? [scr -1]
-      :else (apply max-or-min (map (fn [index] (assoc (minimax (move board player index) (opponent player) (inc depth)) 1 index)) children)))))
+      :else (apply max-or-min (map (fn [index] (assoc (minimax (move board player index) (opponent player) (inc depth) scoring-player) 1 index)) children)))))
 
-(defn next-move
+(defn ai-minimax-move
   "Use minimax to figure out the next best move and make it"
-  [board]
-  (if (= (count (filter #{:empty} board)) 9)
-    (random-move board :x)
-    (let [mv (minimax board :x 0)]
-      (move board :x (get mv 1)))))
+  ([board]
+   (ai-minimax-move board :o))
+  ([board player]
+   (if (= (count (filter #{:empty} board)) 9)
+     (random-move board player)
+     (let [mv (minimax board player 0 player)]
+       (move board player (get mv 1))))))
 
 (defn play-game
   "Play a game with a given second player function.  Can be random-move or user-input currently."
@@ -107,7 +109,7 @@
           (not (= scr 0)) scr
           (= turn turn-max) scr
           (even? turn) (recur (player-func board) (inc turn))
-          (odd? turn) (recur (next-move board) (inc turn)))))))
+          (odd? turn) (recur (ai-minimax-move board :x) (inc turn)))))))
 
 (defn update-totals
   [scr win draw lose]
@@ -118,13 +120,13 @@
 
 (defn play-n-games
   "Play through n games and return an array of [win draw] counts"
-  [num-games]
+  [num-games ai-type]
   (loop [win 0
          draw 0
          lose 0]
     (if (>= (+ win draw lose) num-games) 
       [win draw lose]
-      (let [scr (play-game random-move)
+      (let [scr (play-game ai-type)
             [new-win new-draw new-lose] (update-totals scr win draw lose)]
         (print-score scr)
         (recur new-win new-draw new-lose)))))

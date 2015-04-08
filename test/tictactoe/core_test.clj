@@ -75,18 +75,22 @@
          [0 1 2 3 4 5 6 7 8] *board*
          [] [:o :x :o :o :x :x :x :x :o])))
 
-(deftest get-next-move
+(deftest get-ai-minimax-move
   (testing "Get next move from AI"
-    (are [x y] (= x (minimax y :x 0))
+    (are [x y] (= x (minimax y :x 0 :x))
          [9 6] [:o :o :x :empty :x :empty :empty :empty :empty]
          [0 3] [:o :o :x :empty :x :empty :o :empty :empty])))
 
-(deftest make-next-move
+(deftest make-ai-minimax-move
   (testing "Make the move it should"
-    (are [x y] (= x (next-move y))
+    (are [x y] (= x (ai-minimax-move y :x))
          [:o :o :x :empty :x :empty :x :empty :empty] [:o :o :x :empty :x :empty :empty :empty :empty]
          [:o :o :x :x :x :empty :o :empty :empty] [:o :o :x :empty :x :empty :o :empty :empty])))
 
 (deftest play-a-game
   (testing "Play a random game vs AI"
     (is (>= (play-game random-move) 0))))
+
+(deftest play-ai-vs-itself
+  (testing "Play a game of AI vs AI"
+    (is (= (play-game ai-minimax-move) 0))))
