@@ -16,12 +16,23 @@
     (= string "random") random-move
     :else random-move))
 
+(defn parse-args
+  [args]
+  (if (nil? args)
+    {}
+    (let [num-games (parse-n-games-arg (nth args 0))
+          ai-type (get-ai-type (nth args 1 nil))]
+      {:num-games num-games :ai-type ai-type})))
+
+(defn setup-game
+  [args]
+  (if (empty? args)
+    {:game-fn play-game :output-fn print-score :input-fn user-input :print-fn println}
+    {:game-fn play-n-games :output-fn print-summary :input-fn (:ai-type args) :num-games (:num-games args) :print-fn println}))
+
 (defn -main
   [& args]
-  (if (nil? args)
-    (print-score (play-game println user-input))
-    (let [num-games (parse-n-games-arg (nth args 0))
-          ai-type (get-ai-type (nth args 1 "random"))]
-      (if (integer? num-games)
-        (print-summary println (play-n-games println num-games ai-type))
-        (println num-games)))))
+  (let [setup (setup-game (parse-args args))]
+    (if (string? (:num-games setup))
+      (println (:num-games setup))
+      ((:game-fn setup) setup))))

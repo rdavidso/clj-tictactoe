@@ -1,5 +1,7 @@
 (ns tictactoe.core-test
   (:require [clojure.test :refer :all]
+            [tictactoe.print :refer :all]
+            [tictactoe.core :refer :all]
             [tictactoe.tictactoe :refer :all]))
 
 (def ^:dynamic *board* nil)
@@ -13,6 +15,20 @@
 (defn nil-print
   [& more]
   nil)
+
+(deftest test-parse-args
+  (testing "Parsing different arguments combinations"
+    (are [args-map args-arr] (= args-map (parse-args args-arr))
+         {} nil
+         {:num-games 1 :ai-type random-move} ["1"]
+         {:num-games 2 :ai-type ai-minimax-move} ["2" "ai"])))
+
+(deftest test-setup-game
+  (testing "Using parsed args to get a game config"
+    (are [config args] (= config (setup-game (parse-args args)))
+         {:output-fn print-score :input-fn user-input :print-fn println :game-fn play-game} nil
+         {:game-fn play-n-games :input-fn random-move :output-fn print-summary :print-fn println :num-games "Please enter a positive integer for number of games."} ["asfd"]
+         {:num-games 2 :input-fn ai-minimax-move :output-fn print-summary :print-fn println :game-fn play-n-games} ["2" "ai"])))
 
 (deftest make-empty-board
   (testing "Make empty board"

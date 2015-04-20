@@ -118,19 +118,20 @@
 
 (defn play-game
   "Play a game with a given second player function.  Can be random-move or user-input currently."
-  [can-print player-func]
-  (let [start (rand-int 2)
-        turn-max (+ start 9)]
-    (loop [board (empty-board)
-           turn start]
-      (print-turn can-print start turn)
-      (print-board can-print board)
-      (let [scr (score board :x turn)]
-        (cond
-          (not (= scr 0)) scr
-          (= turn turn-max) scr
-          (even? turn) (recur (player-func board) (inc turn))
-          (odd? turn) (recur (ai-minimax-move board :x) (inc turn)))))))
+  ([setup] ((:output-fn setup) (:print-fn setup) (play-game (:print-fn setup) (:input-fn setup))))
+  ([can-print player-func]
+   (let [start (rand-int 2)
+         turn-max (+ start 9)]
+     (loop [board (empty-board)
+            turn start]
+       (print-turn can-print start turn)
+       (print-board can-print board)
+       (let [scr (score board :x turn)]
+         (cond
+           (not (= scr 0)) scr
+           (= turn turn-max) scr
+           (even? turn) (recur (player-func board) (inc turn))
+           (odd? turn) (recur (ai-minimax-move board :x) (inc turn))))))))
 
 (defn update-totals
   [scr win draw lose]
@@ -141,13 +142,14 @@
 
 (defn play-n-games
   "Play through n games and return an array of [win draw] counts"
-  [can-print num-games ai-type]
-  (loop [win 0
-         draw 0
-         lose 0]
-    (if (>= (+ win draw lose) num-games) 
-      [win draw lose]
-      (let [scr (play-game can-print ai-type)
-            [new-win new-draw new-lose] (update-totals scr win draw lose)]
-        (print-score can-print scr)
-        (recur new-win new-draw new-lose)))))
+  ([setup] ((:output-fn setup) (:print-fn setup) (play-n-games (:print-fn setup) (:num-games setup) (:input-fn setup))))
+  ([can-print num-games ai-type]
+   (loop [win 0
+          draw 0
+          lose 0]
+     (if (>= (+ win draw lose) num-games) 
+       [win draw lose]
+       (let [scr (play-game can-print ai-type)
+             [new-win new-draw new-lose] (update-totals scr win draw lose)]
+         (print-score can-print scr)
+         (recur new-win new-draw new-lose))))))
