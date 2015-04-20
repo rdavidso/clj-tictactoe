@@ -19,9 +19,9 @@
 (defn -main
   [& args]
   (if (nil? args)
-    (print-score (play-game user-input))
+    (print-score (play-game println user-input))
     (let [num-games (parse-n-games-arg (nth args 0))
           ai-type (get-ai-type (nth args 1 "random"))]
       (if (integer? num-games)
-        (print-summary (play-n-games num-games ai-type))
+        (print-summary println (play-n-games println num-games ai-type))
         (println num-games)))))

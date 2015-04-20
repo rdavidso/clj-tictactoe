@@ -1,16 +1,18 @@
 (ns tictactoe.core-test
   (:require [clojure.test :refer :all]
-            [tictactoe.tictactoe :refer :all]
-            [tictactoe.print :refer [*can-print*]]))
+            [tictactoe.tictactoe :refer :all]))
 
 (def ^:dynamic *board* nil)
 
 (defn board-fixture [test]
-  (binding [*board* (empty-board)
-            *can-print* false]
+  (binding [*board* (empty-board)]
     (test)))
 
 (use-fixtures :each board-fixture)
+
+(defn nil-print
+  [& more]
+  nil)
 
 (deftest make-empty-board
   (testing "Make empty board"
@@ -92,8 +94,8 @@
 
 (deftest play-a-game
   (testing "Play a random game vs AI"
-    (is (>= (play-game random-move) 0))))
+    (is (>= (play-game nil-print random-move) 0))))
 
 (deftest play-ai-vs-itself
   (testing "Play a game of AI vs AI"
-    (is (= (play-game ai-minimax-move) 0))))
+    (is (= (play-game nil-print ai-minimax-move) 0))))

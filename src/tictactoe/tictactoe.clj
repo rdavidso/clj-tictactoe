@@ -118,13 +118,13 @@
 
 (defn play-game
   "Play a game with a given second player function.  Can be random-move or user-input currently."
-  [player-func]
+  [can-print player-func]
   (let [start (rand-int 2)
         turn-max (+ start 9)]
     (loop [board (empty-board)
            turn start]
-      (print-turn start turn)
-      (print-board board)
+      (print-turn can-print start turn)
+      (print-board can-print board)
       (let [scr (score board :x turn)]
         (cond
           (not (= scr 0)) scr
@@ -141,13 +141,13 @@
 
 (defn play-n-games
   "Play through n games and return an array of [win draw] counts"
-  [num-games ai-type]
+  [can-print num-games ai-type]
   (loop [win 0
          draw 0
          lose 0]
     (if (>= (+ win draw lose) num-games) 
       [win draw lose]
-      (let [scr (play-game ai-type)
+      (let [scr (play-game can-print ai-type)
             [new-win new-draw new-lose] (update-totals scr win draw lose)]
-        (print-score scr)
+        (print-score can-print scr)
         (recur new-win new-draw new-lose)))))
